@@ -6,6 +6,8 @@
     <title>3D Models Showcase</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Futura:wght@300&display=swap');
+        
         body {
             margin: 0;
             padding: 0;
@@ -14,7 +16,8 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Futura', 'Arial', sans-serif;
+            font-weight: 300;
             overflow: hidden;
             position: relative;
         }
@@ -60,10 +63,7 @@
             display: none;
         }
         
-        .title {
-            font-size: 32px;
-            font-weight: bold;
-            margin-top: 20px;
+        .gradient-text {
             background: linear-gradient(to right, #009fe3, #0099ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -71,18 +71,40 @@
             text-align: center;
         }
         
+        .title {
+            font-size: 32px;
+            font-weight: 300;
+            margin-top: 20px;
+        }
+        
         .main-title {
             position: absolute;
             top: 15%;
             font-size: 36px;
-            font-weight: bold;
+            font-weight: 300;
             text-align: center;
+        }
+        
+        /* Hide models during preload */
+        .preload {
+            position: absolute;
+            visibility: hidden;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
+    <!-- Preload all models -->
+    <div class="preload">
+        <model-viewer src="model.glb" id="preload-model1"></model-viewer>
+        <model-viewer src="model2.glb" id="preload-model2"></model-viewer>
+        <model-viewer src="model3.glb" id="preload-model3"></model-viewer>
+    </div>
+
     <div class="container">
-        <div class="main-title">We drive innovation in</div>
+        <div class="main-title gradient-text">We drive innovation in</div>
         
         <div class="model-container" id="model1-container">
             <model-viewer
@@ -97,7 +119,7 @@
                 auto-rotate
                 rotation-per-second="30deg">
             </model-viewer>
-            <div class="title">Robotics and Digital Systems</div>
+            <div class="title gradient-text">Robotics and Digital Systems</div>
         </div>
         
         <div class="model-container" id="model2-container">
@@ -113,7 +135,7 @@
                 auto-rotate
                 rotation-per-second="30deg">
             </model-viewer>
-            <div class="title">Advanced Materials</div>
+            <div class="title gradient-text">Advanced Materials</div>
         </div>
         
         <div class="model-container" id="model3-container">
@@ -129,62 +151,86 @@
                 auto-rotate
                 rotation-per-second="30deg">
             </model-viewer>
-            <div class="title">Health Technologies</div>
+            <div class="title gradient-text">Health Technologies</div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const containers = [
-                document.getElementById('model1-container'),
-                document.getElementById('model2-container'),
-                document.getElementById('model3-container')
+            // Preload all models first
+            const preloadModels = [
+                document.getElementById('preload-model1'),
+                document.getElementById('preload-model2'),
+                document.getElementById('preload-model3')
             ];
             
-            // Display duration for each model (in milliseconds)
-            const displayTime = 4000;
-            // Animation duration for transitions (in milliseconds)
-            const transitionTime = 1000;
+            // Track preloading progress
+            let modelsLoaded = 0;
             
-            let currentIndex = 0;
-            
-            function showNext() {
-                // Hide the current model
-                containers[currentIndex].classList.remove('active');
-                containers[currentIndex].classList.add('exit');
-                
-                // Update the index
-                currentIndex = (currentIndex + 1) % containers.length;
-                
-                // Show the next model after transition
-                setTimeout(() => {
-                    // Reset position of the previous model
-                    containers[(currentIndex - 1 + containers.length) % containers.length].classList.remove('exit');
-                    containers[(currentIndex - 1 + containers.length) % containers.length].style.transform = 'translateX(100vw)';
+            preloadModels.forEach(model => {
+                model.addEventListener('load', () => {
+                    modelsLoaded++;
                     
-                    // Show the current model
-                    containers[currentIndex].classList.add('active');
-                    
-                    // Schedule the next transition
-                    setTimeout(showNext, displayTime);
-                }, transitionTime);
-            }
-            
-            // Initialize - show the first model
-            containers[0].classList.add('active');
-            
-            // Start the cycle
-            setTimeout(showNext, displayTime);
-            
-            // Apply pingpong animation to all models
-            document.querySelectorAll('model-viewer').forEach(modelViewer => {
-                modelViewer.addEventListener('load', () => {
-                    modelViewer.play({
-                        animation: 'ArmatureAction.001',
-                        pingpong: true
-                    });
+                    // Start sequence when all models are loaded
+                    if (modelsLoaded === preloadModels.length) {
+                        startSequence();
+                    }
                 });
             });
+            
+            function startSequence() {
+                const containers = [
+                    document.getElementById('model1-container'),
+                    document.getElementById('model2-container'),
+                    document.getElementById('model3-container')
+                ];
+                
+                // Display duration for each model (in milliseconds)
+                const displayTime = 4000;
+                // Animation duration for transitions (in milliseconds)
+                const transitionTime = 1000;
+                
+                let currentIndex = 0;
+                
+                function showNext() {
+                    // Hide the current model
+                    containers[currentIndex].classList.remove('active');
+                    containers[currentIndex].classList.add('exit');
+                    
+                    // Update the index
+                    currentIndex = (currentIndex + 1) % containers.length;
+                    
+                    // Show the next model after transition
+                    setTimeout(() => {
+                        // Reset position of the previous model
+                        const prevIndex = (currentIndex - 1 + containers.length) % containers.length;
+                        containers[prevIndex].classList.remove('exit');
+                        containers[prevIndex].style.transform = 'translateX(100vw)';
+                        
+                        // Show the current model
+                        containers[currentIndex].classList.add('active');
+                        
+                        // Schedule the next transition
+                        setTimeout(showNext, displayTime);
+                    }, transitionTime);
+                }
+                
+                // Initialize - show the first model
+                containers[0].classList.add('active');
+                
+                // Start the cycle
+                setTimeout(showNext, displayTime);
+                
+                // Apply pingpong animation to all visible models
+                document.querySelectorAll('.model-container model-viewer').forEach(modelViewer => {
+                    modelViewer.addEventListener('load', () => {
+                        modelViewer.play({
+                            animation: 'ArmatureAction.001',
+                            pingpong: true
+                        });
+                    });
+                });
+            }
         });
     </script>
 </body>
