@@ -12,7 +12,7 @@
             margin: 0;
             padding: 0;
             background-color: transparent;
-            font-family: 'Jost', sans-serif;
+            font-family: 'Jost', sans-serif; /* Jost is similar to Futura Light */
             font-weight: 300;
             overflow: hidden;
         }
@@ -21,6 +21,15 @@
             width: 100%;
             height: 100vh;
             position: relative;
+        }
+        
+        .header {
+            position: absolute;
+            top: 15%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 10;
         }
         
         .model-container {
@@ -47,6 +56,16 @@
             background-color: transparent;
         }
         
+        .gradient-text {
+            font-size: 32px;
+            font-weight: 300;
+            background: linear-gradient(to right, #009fe3, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+        
         .title {
             font-size: 32px;
             font-weight: 300;
@@ -61,6 +80,10 @@
 </head>
 <body>
     <div class="container">
+        <div class="header">
+            <div class="gradient-text">We drive innovation in:</div>
+        </div>
+        
         <div class="model-container" id="model1">
             <model-viewer
                 src="model.glb"
@@ -71,7 +94,10 @@
                 animation-name="ArmatureAction.001"
                 shadow-intensity="1"
                 background-color="transparent"
-                interaction-prompt="none">
+                interaction-prompt="none"
+                loading="eager"
+                poster-color="transparent"
+                reveal="auto">
             </model-viewer>
             <div class="title">Robotics and Digital Systems</div>
         </div>
@@ -86,7 +112,10 @@
                 animation-name="idle"
                 shadow-intensity="1"
                 background-color="transparent"
-                interaction-prompt="none">
+                interaction-prompt="none"
+                loading="eager"
+                poster-color="transparent"
+                reveal="auto">
             </model-viewer>
             <div class="title">Advanced Materials</div>
         </div>
@@ -101,13 +130,22 @@
                 animation-name="ArmatureAction.001"
                 shadow-intensity="1"
                 background-color="transparent"
-                interaction-prompt="none">
+                interaction-prompt="none"
+                loading="eager"
+                poster-color="transparent"
+                reveal="auto">
             </model-viewer>
             <div class="title">Health Technologies</div>
         </div>
     </div>
 
     <script>
+        // Start loading all models immediately
+        document.querySelectorAll('model-viewer').forEach(viewer => {
+            // Preload all models
+            viewer.preload = true;
+        });
+        
         // Simple animation cycle
         const modelContainers = [
             document.getElementById('model1'),
@@ -137,15 +175,17 @@
         setInterval(cycleModels, displayDuration);
         
         // Set up animations for all models
-        document.querySelectorAll('model-viewer').forEach(modelViewer => {
+        document.querySelectorAll('model-viewer').forEach((modelViewer, index) => {
             modelViewer.addEventListener('load', () => {
                 try {
+                    // Use the correct animation name for each model
+                    const animationName = index === 1 ? "idle" : "ArmatureAction.001";
                     modelViewer.play({
-                        animation: 'ArmatureAction.001',
+                        animation: animationName,
                         pingpong: true
                     });
                 } catch (e) {
-                    console.error("Animation error:", e);
+                    console.error("Animation error for model " + index + ":", e);
                 }
             });
         });
