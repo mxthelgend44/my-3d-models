@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Model Viewer</title>
+    <title>3D Models Showcase</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
         body {
@@ -14,43 +14,175 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
         }
-        model-viewer {
+        
+        .container {
             width: 100%;
             height: 100vh;
-            --poster-color: transparent;
-            background-color: transparent;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        /* Remove the interaction prompt (mouse animation) */
+        
+        .model-container {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translateX(100vw);
+            opacity: 0;
+            transition: transform 1s ease, opacity 1s ease;
+        }
+        
+        .model-container.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .model-container.exit {
+            transform: translateX(-100vw);
+            opacity: 0;
+        }
+        
+        model-viewer {
+            width: 300px;
+            height: 300px;
+            background-color: transparent;
+            --poster-color: transparent;
+        }
+        
         model-viewer::part(interaction-prompt) {
             display: none;
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 20px;
+            background: linear-gradient(to right, #009fe3, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+        
+        .main-title {
+            position: absolute;
+            top: 15%;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <model-viewer
-        src="model.glb"
-        camera-controls
-        auto-play
-        animation-name="ArmatureAction.001"
-        animation-crossfade-duration="0.5"
-        shadow-intensity="1"
-        environment-image="neutral"
-        background-color="transparent"
-        interaction-prompt="none">
-    </model-viewer>
+    <div class="container">
+        <div class="main-title">We drive innovation in</div>
+        
+        <div class="model-container" id="model1-container">
+            <model-viewer
+                src="model.glb"
+                camera-controls
+                auto-play
+                animation-name="ArmatureAction.001"
+                shadow-intensity="1"
+                environment-image="neutral"
+                background-color="transparent"
+                interaction-prompt="none"
+                auto-rotate
+                rotation-per-second="30deg">
+            </model-viewer>
+            <div class="title">Robotics and Digital Systems</div>
+        </div>
+        
+        <div class="model-container" id="model2-container">
+            <model-viewer
+                src="model2.glb"
+                camera-controls
+                auto-play
+                animation-name="idle"
+                shadow-intensity="1"
+                environment-image="neutral"
+                background-color="transparent"
+                interaction-prompt="none"
+                auto-rotate
+                rotation-per-second="30deg">
+            </model-viewer>
+            <div class="title">Advanced Materials</div>
+        </div>
+        
+        <div class="model-container" id="model3-container">
+            <model-viewer
+                src="model3.glb"
+                camera-controls
+                auto-play
+                animation-name="ArmatureAction.001"
+                shadow-intensity="1"
+                environment-image="neutral"
+                background-color="transparent"
+                interaction-prompt="none"
+                auto-rotate
+                rotation-per-second="30deg">
+            </model-viewer>
+            <div class="title">Health Technologies</div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const modelViewer = document.querySelector('model-viewer');
+            const containers = [
+                document.getElementById('model1-container'),
+                document.getElementById('model2-container'),
+                document.getElementById('model3-container')
+            ];
             
-            // Play the animation in a loop
-            modelViewer.addEventListener('load', () => {
-                // Set up animation in ping-pong mode
-                const animation = modelViewer.availableAnimations[0];
-                modelViewer.play({
-                    animation: 'ArmatureAction.001',
-                    pingpong: true  // This enables the ping-pong playback
+            // Display duration for each model (in milliseconds)
+            const displayTime = 4000;
+            // Animation duration for transitions (in milliseconds)
+            const transitionTime = 1000;
+            
+            let currentIndex = 0;
+            
+            function showNext() {
+                // Hide the current model
+                containers[currentIndex].classList.remove('active');
+                containers[currentIndex].classList.add('exit');
+                
+                // Update the index
+                currentIndex = (currentIndex + 1) % containers.length;
+                
+                // Show the next model after transition
+                setTimeout(() => {
+                    // Reset position of the previous model
+                    containers[(currentIndex - 1 + containers.length) % containers.length].classList.remove('exit');
+                    containers[(currentIndex - 1 + containers.length) % containers.length].style.transform = 'translateX(100vw)';
+                    
+                    // Show the current model
+                    containers[currentIndex].classList.add('active');
+                    
+                    // Schedule the next transition
+                    setTimeout(showNext, displayTime);
+                }, transitionTime);
+            }
+            
+            // Initialize - show the first model
+            containers[0].classList.add('active');
+            
+            // Start the cycle
+            setTimeout(showNext, displayTime);
+            
+            // Apply pingpong animation to all models
+            document.querySelectorAll('model-viewer').forEach(modelViewer => {
+                modelViewer.addEventListener('load', () => {
+                    modelViewer.play({
+                        animation: 'ArmatureAction.001',
+                        pingpong: true
+                    });
                 });
             });
         });
