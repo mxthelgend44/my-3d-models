@@ -6,231 +6,148 @@
     <title>3D Models Showcase</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Futura:wght@300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300&display=swap');
         
         body {
             margin: 0;
             padding: 0;
             background-color: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Futura', 'Arial', sans-serif;
+            font-family: 'Jost', sans-serif;
             font-weight: 300;
             overflow: hidden;
-            position: relative;
         }
         
         .container {
             width: 100%;
             height: 100vh;
             position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
         
         .model-container {
             position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            transform: translateX(100vw);
             opacity: 0;
-            transition: transform 1s ease, opacity 1s ease;
+            visibility: hidden;
+            transition: opacity 1s ease;
         }
         
         .model-container.active {
-            transform: translateX(0);
             opacity: 1;
-        }
-        
-        .model-container.exit {
-            transform: translateX(-100vw);
-            opacity: 0;
+            visibility: visible;
         }
         
         model-viewer {
             width: 300px;
             height: 300px;
             background-color: transparent;
-            --poster-color: transparent;
-        }
-        
-        model-viewer::part(interaction-prompt) {
-            display: none;
-        }
-        
-        .gradient-text {
-            background: linear-gradient(to right, #009fe3, #0099ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
         }
         
         .title {
             font-size: 32px;
             font-weight: 300;
             margin-top: 20px;
-        }
-        
-        .main-title {
-            position: absolute;
-            top: 15%;
-            font-size: 36px;
-            font-weight: 300;
+            background: linear-gradient(to right, #009fe3, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-align: center;
-        }
-        
-        /* Hide models during preload */
-        .preload {
-            position: absolute;
-            visibility: hidden;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
         }
     </style>
 </head>
 <body>
-    <!-- Preload all models -->
-    <div class="preload">
-        <model-viewer src="model.glb" id="preload-model1"></model-viewer>
-        <model-viewer src="model2.glb" id="preload-model2"></model-viewer>
-        <model-viewer src="model3.glb" id="preload-model3"></model-viewer>
-    </div>
-
     <div class="container">
-        <div class="main-title gradient-text">We drive innovation in</div>
-        
-        <div class="model-container" id="model1-container">
+        <div class="model-container" id="model1">
             <model-viewer
                 src="model.glb"
                 camera-controls
+                auto-rotate
+                rotation-per-second="30deg"
                 auto-play
                 animation-name="ArmatureAction.001"
                 shadow-intensity="1"
-                environment-image="neutral"
                 background-color="transparent"
-                interaction-prompt="none"
-                auto-rotate
-                rotation-per-second="30deg">
+                interaction-prompt="none">
             </model-viewer>
-            <div class="title gradient-text">Robotics and Digital Systems</div>
+            <div class="title">Robotics and Digital Systems</div>
         </div>
         
-        <div class="model-container" id="model2-container">
+        <div class="model-container" id="model2">
             <model-viewer
                 src="model2.glb"
                 camera-controls
+                auto-rotate
+                rotation-per-second="30deg"
                 auto-play
                 animation-name="idle"
                 shadow-intensity="1"
-                environment-image="neutral"
                 background-color="transparent"
-                interaction-prompt="none"
-                auto-rotate
-                rotation-per-second="30deg">
+                interaction-prompt="none">
             </model-viewer>
-            <div class="title gradient-text">Advanced Materials</div>
+            <div class="title">Advanced Materials</div>
         </div>
         
-        <div class="model-container" id="model3-container">
+        <div class="model-container" id="model3">
             <model-viewer
                 src="model3.glb"
                 camera-controls
+                auto-rotate
+                rotation-per-second="30deg"
                 auto-play
                 animation-name="ArmatureAction.001"
                 shadow-intensity="1"
-                environment-image="neutral"
                 background-color="transparent"
-                interaction-prompt="none"
-                auto-rotate
-                rotation-per-second="30deg">
+                interaction-prompt="none">
             </model-viewer>
-            <div class="title gradient-text">Health Technologies</div>
+            <div class="title">Health Technologies</div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Preload all models first
-            const preloadModels = [
-                document.getElementById('preload-model1'),
-                document.getElementById('preload-model2'),
-                document.getElementById('preload-model3')
-            ];
+        // Simple animation cycle
+        const modelContainers = [
+            document.getElementById('model1'),
+            document.getElementById('model2'),
+            document.getElementById('model3')
+        ];
+        
+        let currentIndex = 0;
+        const displayDuration = 4000; // 4 seconds
+        
+        // Show first model immediately
+        modelContainers[0].classList.add('active');
+        
+        // Function to cycle through models
+        function cycleModels() {
+            // Hide current model
+            modelContainers[currentIndex].classList.remove('active');
             
-            // Track preloading progress
-            let modelsLoaded = 0;
+            // Move to next model
+            currentIndex = (currentIndex + 1) % modelContainers.length;
             
-            preloadModels.forEach(model => {
-                model.addEventListener('load', () => {
-                    modelsLoaded++;
-                    
-                    // Start sequence when all models are loaded
-                    if (modelsLoaded === preloadModels.length) {
-                        startSequence();
-                    }
-                });
-            });
-            
-            function startSequence() {
-                const containers = [
-                    document.getElementById('model1-container'),
-                    document.getElementById('model2-container'),
-                    document.getElementById('model3-container')
-                ];
-                
-                // Display duration for each model (in milliseconds)
-                const displayTime = 4000;
-                // Animation duration for transitions (in milliseconds)
-                const transitionTime = 1000;
-                
-                let currentIndex = 0;
-                
-                function showNext() {
-                    // Hide the current model
-                    containers[currentIndex].classList.remove('active');
-                    containers[currentIndex].classList.add('exit');
-                    
-                    // Update the index
-                    currentIndex = (currentIndex + 1) % containers.length;
-                    
-                    // Show the next model after transition
-                    setTimeout(() => {
-                        // Reset position of the previous model
-                        const prevIndex = (currentIndex - 1 + containers.length) % containers.length;
-                        containers[prevIndex].classList.remove('exit');
-                        containers[prevIndex].style.transform = 'translateX(100vw)';
-                        
-                        // Show the current model
-                        containers[currentIndex].classList.add('active');
-                        
-                        // Schedule the next transition
-                        setTimeout(showNext, displayTime);
-                    }, transitionTime);
-                }
-                
-                // Initialize - show the first model
-                containers[0].classList.add('active');
-                
-                // Start the cycle
-                setTimeout(showNext, displayTime);
-                
-                // Apply pingpong animation to all visible models
-                document.querySelectorAll('.model-container model-viewer').forEach(modelViewer => {
-                    modelViewer.addEventListener('load', () => {
-                        modelViewer.play({
-                            animation: 'ArmatureAction.001',
-                            pingpong: true
-                        });
+            // Show next model
+            modelContainers[currentIndex].classList.add('active');
+        }
+        
+        // Start cycling after the first display duration
+        setInterval(cycleModels, displayDuration);
+        
+        // Set up animations for all models
+        document.querySelectorAll('model-viewer').forEach(modelViewer => {
+            modelViewer.addEventListener('load', () => {
+                try {
+                    modelViewer.play({
+                        animation: 'ArmatureAction.001',
+                        pingpong: true
                     });
-                });
-            }
+                } catch (e) {
+                    console.error("Animation error:", e);
+                }
+            });
         });
     </script>
 </body>
