@@ -21,6 +21,10 @@
             --poster-color: transparent;
             background-color: transparent;
         }
+        /* Remove the interaction prompt (mouse animation) */
+        model-viewer::part(interaction-prompt) {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -28,10 +32,28 @@
         src="model.glb"
         camera-controls
         auto-play
-        animation-name="Animation"
+        animation-name="ArmatureAction.001"
+        animation-crossfade-duration="0.5"
         shadow-intensity="1"
         environment-image="neutral"
-        background-color="transparent">
+        background-color="transparent"
+        interaction-prompt="none">
     </model-viewer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modelViewer = document.querySelector('model-viewer');
+            
+            // Play the animation in a loop
+            modelViewer.addEventListener('load', () => {
+                // Set up animation in ping-pong mode
+                const animation = modelViewer.availableAnimations[0];
+                modelViewer.play({
+                    animation: 'ArmatureAction.001',
+                    pingpong: true  // This enables the ping-pong playback
+                });
+            });
+        });
+    </script>
 </body>
 </html>
