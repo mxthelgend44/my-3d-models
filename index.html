@@ -12,7 +12,7 @@
             margin: 0;
             padding: 0;
             background-color: transparent;
-            font-family: 'Jost', sans-serif;
+            font-family: 'Jost', sans-serif; /* Jost is similar to Futura Light */
             font-weight: 300;
             overflow: hidden;
         }
@@ -34,17 +34,17 @@
         
         .model-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.8s ease;
+            transition: opacity 1s ease;
+            width: 80%;
+            max-width: 800px;
         }
         
         .model-container.active {
@@ -53,9 +53,8 @@
         }
         
         model-viewer {
-            width: 80%;
-            height: 70%;
-            max-height: 70vh;
+            width: 100%;
+            height: 60vh;
             background-color: transparent;
         }
         
@@ -79,16 +78,6 @@
             background-clip: text;
             text-align: center;
         }
-
-        /* Loading indicator */
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 18px;
-            color: #009fe3;
-        }
     </style>
 </head>
 <body>
@@ -96,8 +85,6 @@
         <div class="header">
             <div class="gradient-text">We drive innovation in:</div>
         </div>
-        
-        <div class="loading" id="loading-indicator">Loading models...</div>
         
         <div class="model-container" id="model1">
             <model-viewer
@@ -110,11 +97,9 @@
                 shadow-intensity="1"
                 background-color="transparent"
                 interaction-prompt="none"
+                loading="eager"
                 poster-color="transparent"
-                reveal="interaction"
-                loading="lazy"
-                field-of-view="30deg"
-                camera-orbit="0deg 75deg 105%">
+                reveal="auto">
             </model-viewer>
             <div class="title">Robotics and Digital Systems</div>
         </div>
@@ -130,11 +115,9 @@
                 shadow-intensity="1"
                 background-color="transparent"
                 interaction-prompt="none"
+                loading="eager"
                 poster-color="transparent"
-                reveal="interaction"
-                loading="lazy"
-                field-of-view="30deg"
-                camera-orbit="0deg 75deg 105%">
+                reveal="auto">
             </model-viewer>
             <div class="title">Advanced Materials</div>
         </div>
@@ -150,39 +133,22 @@
                 shadow-intensity="1"
                 background-color="transparent"
                 interaction-prompt="none"
+                loading="eager"
                 poster-color="transparent"
-                reveal="interaction"
-                loading="lazy"
-                field-of-view="30deg"
-                camera-orbit="0deg 75deg 105%">
+                reveal="auto">
             </model-viewer>
             <div class="title">Health Technologies</div>
         </div>
     </div>
 
     <script>
-        const loadingIndicator = document.getElementById('loading-indicator');
-        let modelsLoaded = 0;
-        const totalModels = 3;
-        
-        // Function to update loading status
-        function updateLoadingStatus() {
-            modelsLoaded++;
-            if (modelsLoaded === totalModels) {
-                loadingIndicator.style.display = 'none';
-                startModelCycle();
-            }
-        }
-        
-        // Track loading progress for each model
+        // Start loading all models immediately
         document.querySelectorAll('model-viewer').forEach(viewer => {
-            viewer.addEventListener('load', updateLoadingStatus);
-            viewer.addEventListener('error', (error) => {
-                console.error('Error loading model:', error);
-                updateLoadingStatus(); // Still count as loaded to avoid hanging
-            });
+            // Preload all models
+            viewer.preload = true;
         });
         
+        // Simple animation cycle
         const modelContainers = [
             document.getElementById('model1'),
             document.getElementById('model2'),
@@ -191,28 +157,24 @@
         
         let currentIndex = 0;
         const displayDuration = 4000; // 4 seconds
-        let cycleInterval;
         
-        // Function to start the model cycling
-        function startModelCycle() {
-            // Show first model immediately
-            modelContainers[0].classList.add('active');
+        // Show first model immediately
+        modelContainers[0].classList.add('active');
+        
+        // Function to cycle through models
+        function cycleModels() {
+            // Hide current model
+            modelContainers[currentIndex].classList.remove('active');
             
-            // Function to cycle through models
-            function cycleModels() {
-                // Hide current model
-                modelContainers[currentIndex].classList.remove('active');
-                
-                // Move to next model
-                currentIndex = (currentIndex + 1) % modelContainers.length;
-                
-                // Show next model
-                modelContainers[currentIndex].classList.add('active');
-            }
+            // Move to next model
+            currentIndex = (currentIndex + 1) % modelContainers.length;
             
-            // Start cycling after the first display duration
-            cycleInterval = setInterval(cycleModels, displayDuration);
+            // Show next model
+            modelContainers[currentIndex].classList.add('active');
         }
+        
+        // Start cycling after the first display duration
+        setInterval(cycleModels, displayDuration);
         
         // Set up animations for all models
         document.querySelectorAll('model-viewer').forEach((modelViewer, index) => {
@@ -229,14 +191,6 @@
                 }
             });
         });
-
-        // Timeout to handle case where models don't load
-        setTimeout(() => {
-            if (modelsLoaded < totalModels) {
-                loadingIndicator.textContent = 'Some models are still loading...';
-                startModelCycle(); // Start anyway after timeout
-            }
-        }, 10000); // 10 seconds timeout
     </script>
 </body>
 </html>
