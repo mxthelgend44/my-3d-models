@@ -6,13 +6,13 @@
     <title>3D Models Showcase</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@300;400&display=swap');
         
         body {
             margin: 0;
             padding: 0;
             background-color: transparent;
-            font-family: 'Jost', sans-serif; /* Jost is similar to Futura Light */
+            font-family: 'Syne', sans-serif;
             font-weight: 300;
             overflow: hidden;
         }
@@ -27,11 +27,11 @@
         
         .header {
             position: absolute;
-            top: 5%;
+            top: 40%;
             left: 0;
             right: 0;
             text-align: center;
-            z-index: 10;
+            z-index: 1;
         }
         
         .model-container {
@@ -49,6 +49,7 @@
             width: 100%;
             padding-top: 0vh;
             box-sizing: border-box;
+            z-index: 5;
         }
         
         .model-container.active {
@@ -62,35 +63,33 @@
             background-color: transparent;
         }
         
-        .gradient-text {
+        .header-text {
             font-size: 32px;
-            font-weight: 300;
-            background: linear-gradient(to right, #009fe3, #0099ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-weight: bold;
+            color: black;
             text-align: center;
         }
         
         .title {
             font-size: 32px;
-            font-weight: 300;
+            font-weight: bold;
             position: absolute;
             bottom: 5vh;
             left: 0;
             right: 0;
-            background: linear-gradient(to right, #009fe3, #0099ff);
+            background: linear-gradient(to right, #4B97F3, #7CAAFE);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-align: center;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="gradient-text">We drive innovation in:</div>
+            <div class="header-text">We Drive Innovation in:</div>
         </div>
         
         <div class="model-container" id="model1">
@@ -130,7 +129,9 @@
                 camera-orbit="1m 75deg 30deg"
                 camera-target="0 0 0"
                 field-of-view="7deg"
-                reveal="auto">
+                reveal="auto"
+                environment-image="neutral"
+                skybox-image="">
             </model-viewer>
             <div class="title">Advanced Materials</div>
         </div>
